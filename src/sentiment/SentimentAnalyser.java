@@ -56,14 +56,15 @@ public class SentimentAnalyser {
 		 * - resource directory
 		 * - BidiMap objects for text, feature, and complex representation
 		 */
-		tr = new Trainer(main_folder);			//tr.train();
+		tr = new Trainer(main_folder);			
+		//tr.train();
 		System.out.println("object tr created");
 		
 		
 		/* 
 		 * MODEL BUILDER
 		 * only use this if the model has not been created yet or you want to create new ones.
-		 * Note: the process may take a long time depended on the size of datasets and the capability
+		 * Note: the process may take a long time depends on the size of datasets and the capability
 		 * of classifier
 		 */
 		 
