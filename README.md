@@ -21,7 +21,7 @@
 </ul>
 
 ## References
-[https://www.researchgate.net/publication/269093520_Feature_based_sentiment_analysis](https://www.researchgate.net/publication/269093520_Feature_based_sentiment_analysis)
-[https://cs.nyu.edu/grishman/jet/guide/PennPOS.html](https://cs.nyu.edu/grishman/jet/guide/PennPOS.html)
-[http://partofspeech.org/](http://partofspeech.org/)
+[https://www.researchgate.net/publication/269093520_Feature_based_sentiment_analysis](https://www.researchgate.net/publication/269093520_Feature_based_sentiment_analysis)<br />
+[https://cs.nyu.edu/grishman/jet/guide/PennPOS.html](https://cs.nyu.edu/grishman/jet/guide/PennPOS.html)<br />
+[http://partofspeech.org/](http://partofspeech.org/)<br />
 [http://www.slideshare.net/Cataldo/aiia-14dart](http://www.slideshare.net/Cataldo/aiia-14dart)
