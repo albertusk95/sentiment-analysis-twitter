@@ -48,7 +48,6 @@ public class FormService extends HttpServlet {
 			e.printStackTrace();
 		}
 		
-		
 		// initiates sentiment processor
 		try {
 			Processor.startProcessor();
