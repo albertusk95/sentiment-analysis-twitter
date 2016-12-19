@@ -64,10 +64,11 @@ public class Trainer {
 	 * Text: all of the two words combinations
 	 */
 	public BidiMap<String, Integer> getTextAttributes(){
-		try{
+		try {
 			tba.clear();
 			
-			BufferedReader rdr = new BufferedReader(new FileReader(new File(folder+"attributes/text.tsv")));
+			BufferedReader rdr = new BufferedReader(new FileReader(new File(folder + "attributes/text.tsv")));
+			
 			String inline;
 			
 			while ((inline = rdr.readLine()) != null) {
@@ -92,8 +93,9 @@ public class Trainer {
 		try {
 			fba.clear();
 			
-			BufferedReader rdr = new BufferedReader(new FileReader(new File(folder+"attributes/feature.tsv")));
-			String inline;
+			BufferedReader rdr = new BufferedReader(new FileReader(new File(folder + "attributes/feature.tsv")));
+			
+			String inline; 
 			
 			while ((inline = rdr.readLine()) != null){
 				String[] dic = inline.split("\\t");
@@ -115,7 +117,8 @@ public class Trainer {
 		try {
 			cba.clear();
 			
-			BufferedReader rdr = new BufferedReader(new FileReader(new File(folder+"attributes/complex.tsv")));
+			BufferedReader rdr = new BufferedReader(new FileReader(new File(folder + "attributes/complex.tsv")));
+			
 			String inline;
 			
 			while ((inline = rdr.readLine()) != null){
@@ -242,7 +245,7 @@ public class Trainer {
 		try {
 			
 			// get the instances with a filter within it
-			data = getText(folder+"train/0T.arff");
+			data = getText(folder + "train/0T.arff");
 			
 			// save the filtered text-based instances
 			saveFile(data, "T");

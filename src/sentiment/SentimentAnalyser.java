@@ -79,8 +79,8 @@ public class SentimentAnalyser {
 		 * Initiates:
 		 * - resource directory
 		 * - BidiMap objects for text, feature, and complex representation
-		 * - Filter: StringToWordVector and NGramTokenizer
-		 * - Classifier: MNB and SVM
+		 * - Filter: StringToWordVector and Tokenizer: NGramTokenizer
+		 * - Classifier: MNB and LibSVM
 		 */
 		pc = new PolarityClassifier(main_folder, tr.getTextAttributes(), tr.getFeatureAttributes(), tr.getComplexAttributes());
 		System.out.println("object pc created");
