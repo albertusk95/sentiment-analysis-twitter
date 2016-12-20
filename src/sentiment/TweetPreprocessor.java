@@ -35,13 +35,15 @@ public class TweetPreprocessor {
 		// resource directory
 		main_folder = t;
 		
-		// preprocessor (filterer) for text, feature, and complex representation
+		/* initialize preprocessor (filterer) attributes for text, feature, and complex representation,
+		 * such as abbreviations, happy and sad emoticons, dot symbol, exclamation symbol, etc.
+		 */
 		tp = new TextPreprocessor(main_folder);
 		cp = new ComplexPreprocessor();
 		fp = new FeaturePreprocessor(main_folder);
 		
 		// part of speech tagger (POS Tagger)
-		tagger = new MaxentTagger(main_folder+"datasets/wsj-0-18-left3words-distsim.tagger");
+		tagger = new MaxentTagger(main_folder + "datasets/wsj-0-18-left3words-distsim.tagger");
 		
 		/*
 		try {
@@ -53,7 +55,7 @@ public class TweetPreprocessor {
 		}
 		*/
 		
-		// preprocessor (filterer) for lexicon
+		// initialize preprocessor (filterer) for lexicon representation
 		try {
 			lp = new LexiconPreprocessor(main_folder);
 		} catch (IOException e) {
@@ -61,18 +63,28 @@ public class TweetPreprocessor {
 		}
 	}
 	
-	/**Getter*/
-	public Instances[] getAllInstances(){
+	/** 
+	 * Getter 
+	 * Get all instances created before (instances that contains data test)
+	 */
+	public Instances[] getAllInstances() {
+		
 		Instances[] all = new Instances[4];
+		
 		all[0] = text_instances;
 		all[1] = feature_instances;
 		all[2] = complex_instances;
 		all[3] = lexicon_instances;
+		
 		return all;
+	
 	}
 	
-	/**Setter*/
-	public void setTweet(String t){
+	/**
+	 * Setter
+	 * Set the tweet to process
+	 */
+	public void setTweet(String t) {
 		tweet = t;
 		//maxid++;
 	}
@@ -87,9 +99,10 @@ public class TweetPreprocessor {
 	}
 	
 	/*
-	 * Instantiates the text-based Instances
+	 * Initializes the text-based Instances
 	 */
-	private String getTextInstances(){
+	private String getTextInstances() {
+		
 		ArrayList<Attribute> atts = new ArrayList<Attribute>(2);
         ArrayList<String> classVal = new ArrayList<String>();
         classVal.add("positive");
@@ -100,7 +113,7 @@ public class TweetPreprocessor {
         // create instances (relation) with name TextInstances with attributes atts and initial size 0
         Instances textRaw = new Instances("TextInstances",atts,0);
         
-        // processes the tweet 
+        // preprocesses the tweet 
         double[] instanceValue1 = new double[textRaw.numAttributes()];
         
         String tmp_txt = tp.getProcessed(tweet);
@@ -109,25 +122,34 @@ public class TweetPreprocessor {
         // add to the list of preprocessed tweet
         Tweet.setTweetPreprocessed(tmp_txt);
         
+		// initialize the instance containing the tweet
         instanceValue1[1] = textRaw.attribute(1).addStringValue(tmp_txt);
-        textRaw.add(new SparseInstance(1.0, instanceValue1));
+        
+		// store the instance within the instances
+		textRaw.add(new SparseInstance(1.0, instanceValue1));
+		
 		text_instances = new Instances(textRaw);
+		
         return tmp_txt;
+	
 	}
 	
 	/*
-	 * Initiates the feature-based Instances
+	 * Initializes the feature-based Instances
 	 */
-	private void getFeatureInstances(){
+	private void getFeatureInstances() {
+		
 		ArrayList<Attribute> atts = new ArrayList<Attribute>(2);
         ArrayList<String> classVal = new ArrayList<String>();
         classVal.add("positive");
         classVal.add("negative");
         atts.add(new Attribute("sentimentClassAttribute",classVal));
         atts.add(new Attribute("text",(ArrayList<String>)null));
-        Instances textRaw = new Instances("TextInstances",atts,0);
+        
+		Instances textRaw = new Instances("TextInstances",atts,0);
         double[] instanceValue1 = new double[textRaw.numAttributes()];
         
+		// preprocesses the feature-based tweet
         String featurePreProc = fp.getProcessed(tweet);
         System.out.println("Preprocessed feature: " + featurePreProc);
         
@@ -137,21 +159,25 @@ public class TweetPreprocessor {
         instanceValue1[1] = textRaw.attribute(1).addStringValue(featurePreProc);
         textRaw.add(new SparseInstance(1.0, instanceValue1));
 		feature_instances = new Instances(textRaw);
+	
 	}
 	
 	/*
 	 * Initiates the complex-based Instances
 	 */
-	private String getComplexInstances(String processed_text){
+	private String getComplexInstances(String processed_text) {
+		
 		ArrayList<Attribute> atts = new ArrayList<Attribute>(2);
         ArrayList<String> classVal = new ArrayList<String>();
         classVal.add("positive");
         classVal.add("negative");
         atts.add(new Attribute("sentimentClassAttribute",classVal));
         atts.add(new Attribute("text",(ArrayList<String>)null));
+		
         Instances textRaw = new Instances("TextInstances",atts,0);
         double[] instanceValue1 = new double[textRaw.numAttributes()];
         
+		// preprocesses the complex-based tweet
         String tmp_cmplx = cp.getProcessed(processed_text, tagger);
         System.out.println("Preprocessed complex: " + tmp_cmplx);
         
@@ -161,10 +187,13 @@ public class TweetPreprocessor {
         instanceValue1[1] = textRaw.attribute(1).addStringValue(tmp_cmplx);
         textRaw.add(new SparseInstance(1.0, instanceValue1));
 		complex_instances = new Instances(textRaw);
+		
 		return tmp_cmplx;
+	
 	}
 	
-	private void setLexiconInstances(){
+	private void setLexiconInstances() {
+		
 		ArrayList<Attribute> atts = new ArrayList<Attribute>(6);
         ArrayList<String> classVal = new ArrayList<String>();
         classVal.add("positive");
@@ -180,6 +209,7 @@ public class TweetPreprocessor {
         
         Instances textRaw = new Instances("TextInstances",atts,0);
         
+		// preprocesses the lexicon-based tweet
         double[] vals = lp.getProcessed(tweet, tagger);
         
         /*
@@ -190,5 +220,6 @@ public class TweetPreprocessor {
         
         textRaw.add(new SparseInstance(1.0, vals));
 		lexicon_instances = new Instances(textRaw);
+	
 	}
 }

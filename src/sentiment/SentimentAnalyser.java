@@ -52,7 +52,7 @@ public class SentimentAnalyser {
 	public SentimentAnalyser(String main_folder, boolean useSW, String test_dataset) throws Exception {
 		
 		/* 
-		 * Initiates:
+		 * Initializes:
 		 * - resource directory
 		 * - BidiMap objects for text, feature, and complex representation
 		 */
@@ -76,7 +76,7 @@ public class SentimentAnalyser {
 		
 		
 		/*
-		 * Initiates:
+		 * Initializes:
 		 * - resource directory
 		 * - BidiMap objects for text, feature, and complex representation
 		 * - Filter: StringToWordVector and Tokenizer: NGramTokenizer
@@ -86,7 +86,7 @@ public class SentimentAnalyser {
 		System.out.println("object pc created");
 		
 		/*
-		 * Initiates:
+		 * Initializes:
 		 * - resource directory
 		 * - preprocessor (filterer) for text, feature, and complex representation
 		 * - part of speech tagger (POS Tagger)
@@ -96,17 +96,21 @@ public class SentimentAnalyser {
 		System.out.println("object tp created");
 		
 		/*
-		 * Initiates:
+		 * Initializes:
 		 * - Filter: StringToWordVector and NGramTokenizer
 		 */
 		initializeFilter();
 		System.out.println("initializeFilter done");
 		
+		/*
+		 * Initializes:
+		 * - useSlidingWindow from the argument
+		 */
 		useSlidingWindow = useSW;
 		
 		
 		/*
-         * Initiates:
+         * Initializes:
          * -  Attributes elements, namely text (String) and sentimentClass (positive, negative)
          */
 		ArrayList<Attribute> attributes = new ArrayList<Attribute>();
@@ -117,35 +121,42 @@ public class SentimentAnalyser {
         attributes.add(new Attribute("sentimentClassValue", classVal));
         
         /*
-		 * Initiates:
-		 * - Instances for train data with initial size equals 0
+		 * Initializes:
+		 * - Instances for data train with initial size equals 0
 		 */
         train = new Instances("somerel", attributes, 0);
 		train.setClassIndex(1);
 		
 		/*
-		 * Initiates:
+		 * Initializes:
 		 * - Instances for data test with initial size equals 0
 		 */
 		test = new Instances("somerel", attributes, 0);
 		test.setClassIndex(1);
 		
+		
 		if (useSlidingWindow == false) {
-			multiNB = (Classifier) weka.core.SerializationHelper.read(main_folder+"/test_models/"+test_dataset+".model");
-			BufferedReader rd = new BufferedReader(new FileReader(new File(main_folder+"test_models/"+test_dataset+"-attributes.tsv")));
+			
+			multiNB = (Classifier) weka.core.SerializationHelper.read(main_folder + "/test_models/" + test_dataset + ".model");
+			BufferedReader rd = new BufferedReader(new FileReader(new File(main_folder + "test_models/" + test_dataset + "-attributes.tsv")));
 			train_attributes = new DualHashBidiMap<String, Integer>();
+			
 			String inline;
 			int cnt = 0;
 			
-			while ((inline = rd.readLine()) != null){
+			while ((inline = rd.readLine()) != null) {
 				train_attributes.put(inline, cnt);
 				cnt++;
 			}
+			
 			rd.close();
 			
-			BufferedReader frd = new BufferedReader(new FileReader(new File(main_folder+"test_models/"+test_dataset+"-attributes.arff")));
+			BufferedReader frd = new BufferedReader(new FileReader(new File(main_folder + "test_models/" + test_dataset + "-attributes.arff")));
+			
 			training_text = new Instances(frd);
+			
 			frd.close();
+		
 		}
 	}
 
@@ -155,7 +166,7 @@ public class SentimentAnalyser {
 	 * Starts the whole process: preprocesses the given tweet, creates different representations
 	 * of it (stored in "all[]" Instances) and tests it in the PolarityClassifier class
 	 */
-	public String getPolarity(String tweet){
+	public String getPolarity(String tweet) {
 		
 		/*
 		 * Stores temporary predicted classes coming from:
@@ -172,6 +183,7 @@ public class SentimentAnalyser {
 		
 		/*
 		 * Initiates:
+		 * - lexicon instances
 		 * - text instances (ex: ?, 'this is a text')
 		 * - feature instances
 		 * - complex instances
@@ -179,6 +191,9 @@ public class SentimentAnalyser {
 		tp.startProc();
 		Instances[] all = tp.getAllInstances();
 		
+		/*
+		 * Starts the analysis
+		 */
 		String out = pc.test(all);
 		
 		// initiates PolarityClassifier predicted class
@@ -337,10 +352,13 @@ public class SentimentAnalyser {
 		}
 		return null;
 	}
+	
 	/**
 	 * StringToWordVector filter initialization
 	 */
-	private void initializeFilter(){
+	private void initializeFilter() {
+		
+		// create the object for the STWV filter
 		stwv = new StringToWordVector();
 		stwv.setLowerCaseTokens(true);
 		stwv.setMinTermFreq(1);
@@ -348,10 +366,16 @@ public class SentimentAnalyser {
 		stwv.setTFTransform(false);
 		stwv.setIDFTransform(false);		
 		stwv.setWordsToKeep(1000000000);
+		
+		// create the object for the tokenizer (NGram)
 		NGramTokenizer tokenizer = new NGramTokenizer();
 		tokenizer.setNGramMinSize(2);
 		tokenizer.setNGramMaxSize(2);
+		
+		// set the tokenizer as the filter's attribute
 		stwv.setTokenizer(tokenizer);
 		stwv.setAttributeIndices("first");
+	
 	}
+	
 }

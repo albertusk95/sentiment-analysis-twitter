@@ -62,11 +62,14 @@ public class PolarityClassifier {
 		initializeClassifiers();
 	}
 	
+	
 	/*
 	 * Begins the algorithm
 	 */
-	public String test(Instances[] all){
+	public String test(Instances[] all) {
+		
 		String output = "";
+		
 		try {
 			text[0] = getText(all[0]);
 			feature[0] = getFeature(all[1]);
@@ -75,9 +78,11 @@ public class PolarityClassifier {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 		reformatText(text[0]);
 		reformatFeature(feature[0]);
 		reformatComplex(complex[0]);
+		
 		try {
 			
 			output = apply();
@@ -85,10 +90,10 @@ public class PolarityClassifier {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 		return output;
+	
 	}
-	
-	
 	
 	
 	/*

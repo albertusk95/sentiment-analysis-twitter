@@ -60,7 +60,9 @@ public class LexiconPreprocessor {
 		
 	}
 	
-	/**Some common pre-processing stuff*/
+	/**
+	 * Pre-processing stuff
+	 */
 	public double[] getProcessed(String str, MaxentTagger tagger) {
 		
 		/*
@@ -72,7 +74,9 @@ public class LexiconPreprocessor {
 		StringTokenizer st = new StringTokenizer(str);
 		String current;
 		String toreturn = "";
-		while (st.hasMoreTokens()){			
+		
+		while (st.hasMoreTokens()) {
+			
 			current = st.nextToken();						
 			current = replaceEmoticons(current);			// current is altered to "happy"/"sad"
 			current = replaceTwitterFeatures(current);		// i.e. links, mentions, hash-tags
@@ -81,16 +85,21 @@ public class LexiconPreprocessor {
 			current = replaceAbbreviations(current);		// if current is an abbreviation, then replace it
 			current = current.replaceAll("[^A-Za-z]", " ");
 			toreturn = toreturn.concat(" "+current);
+		
 		}
+		
 		double[] vals = getPOS(toreturn, tagger);
+		
 		return vals;
+	
 	}
 	
 
-	
-	
-	/**The only extra method compared to the text-based approach.*/
-	private double[] getPOS(String sample, MaxentTagger tagger){
+	/**
+	 * Get the Part of Speech
+	 */
+	private double[] getPOS(String sample, MaxentTagger tagger) {
+		
 		String tagged = tagger.tagString(sample.trim().replaceAll(" +", " "));	
 		StringTokenizer stk = new StringTokenizer(tagged);
 		String output = "";
@@ -101,61 +110,82 @@ public class LexiconPreprocessor {
 		double polarity = 0.0;
 		boolean foundNegation = false;
 		
-		while (stk.hasMoreTokens()){
+		while (stk.hasMoreTokens()) {
+			
 			String token = stk.nextToken();
 			String tmp = token.substring(0, token.lastIndexOf("_")).toLowerCase();
 			int idx = token.lastIndexOf("_");
 			String pos = token.substring(idx+1);
-			if (tmp.equals("not"))
+			
+			if (tmp.equals("not")) {
 				foundNegation = true;
-			else if (pos.equals("NN") || pos.equals("NNS") || pos.equals("NNP") || pos.equals("NNPS")){
+			}
+			else if (pos.equals("NN") || pos.equals("NNS") || pos.equals("NNP") || pos.equals("NNPS")) {
+				
 				output = output+"n#"+tmp+" ";
-				if (foundNegation==true){
+				
+				if (foundNegation == true) {
 					foundNegation = false;
 					noun = noun - swn.extract(tmp, "n");
-				}else
+				} else {
 					noun = noun + swn.extract(tmp, "n");
-			}else if (pos.equals("RB") || pos.equals("RBR") || pos.equals("RBS") || pos.equals("RP")){
+				}
+				
+			} else if (pos.equals("RB") || pos.equals("RBR") || pos.equals("RBS") || pos.equals("RP")) {
+				
 				output = output+"r#"+tmp+" ";
-				if (foundNegation==true){
+				
+				if (foundNegation == true) {
 					foundNegation = false;
 					adv = adv-swn.extract(tmp, "r");
-				}else
+				} else {
 					adv = adv+swn.extract(tmp, "r");
-			}else if (pos.equals("JJ") || pos.equals("JJR") || pos.equals("JJS")){
+				}
+				
+			} else if (pos.equals("JJ") || pos.equals("JJR") || pos.equals("JJS")) {
+				
 				output = output+"a#"+tmp+" ";
-				if (foundNegation==true){
+				
+				if (foundNegation == true) {
 					foundNegation = false;
 					adj = adj-swn.extract(tmp, "a");
-				}else
+				} else {
 					adj = adj+swn.extract(tmp, "a");
-			}else if (pos.equals("VB") || pos.equals("VBD") || pos.equals("VBG") || pos.equals("VBN") || pos.equals("VBP") || pos.equals("VBZ")){
+				}
+				
+			} else if (pos.equals("VB") || pos.equals("VBD") || pos.equals("VBG") || pos.equals("VBN") || pos.equals("VBP") || pos.equals("VBZ")) {
+				
 				output = output+"v#"+tmp+" ";
-				if (foundNegation==true){
+				
+				if (foundNegation == true) {
 					foundNegation = false;
 					verb = verb-swn.extract(tmp, "v");
-				}else
+				} else {
 					verb = verb+swn.extract(tmp, "v");
+				}
+				
 			}
+			
 			// The polarity value
-			if (tmp.equals("not"))
+			if (tmp.equals("not")) {
 				foundNegation = true;
-			else if (posWords.contains(tmp)){
-				if (foundNegation==true){
+			} else if (posWords.contains(tmp)) {
+				if (foundNegation == true) {
 					polarity = polarity-1.0;
 					foundNegation = false;
-				}else{
+				} else {
 					polarity = polarity+1.0;
 				}
-			}else if (negWords.contains(tmp)){
-				if (foundNegation==true){
+			} else if (negWords.contains(tmp)) {
+				if (foundNegation == true) {
 					polarity = polarity+1.0;
-					foundNegation=false;
-				}else{
+					foundNegation = false;
+				} else {
 					polarity = polarity - 1.0;
 				}
 			}
 		}
+		
 		double[] ret = new double[6];
 		ret[0] = verb;
 		ret[1] = noun;
@@ -163,109 +193,176 @@ public class LexiconPreprocessor {
 		ret[3] = adv;
 		ret[4] = adv+verb+noun+adj;
 		ret[5] = polarity;
+		
 		return ret;
+	
 	}
 	
-	/**Replaces consecutive letters*/
-	private String replaceConsecutiveLetters(String current){
+	/**
+	 * Replaces consecutive letters
+	 */
+	private String replaceConsecutiveLetters(String current) {
+		
 		String tmp = current.replaceAll("[^A-Za-z]", "");
-		if (tmp.length()>0 && containsRepetitions(tmp)){
+		
+		if (tmp.length() > 0 && containsRepetitions(tmp)) {
 			tmp = replaceRepetitions(tmp);
 			return tmp;
 		}
+		
 		return current;	
+	
 	}
 	
-	/**Check whether the given String contains consecutive letters*/
-	private boolean containsRepetitions(String str){
+	/**
+	 * Check whether the given String contains consecutive letters
+	 */
+	private boolean containsRepetitions(String str) {
+		
 		String toreturn=str.substring(0,1);
 		char prev = str.charAt(0);
 		int cnt = 0;
 		
-		for (int i=1; i<str.length(); i++){
+		for (int i = 1; i < str.length(); i++) {
+			
 			char current = str.charAt(i);
 			toreturn = toreturn+current;
-			if (current==prev){
+			
+			if (current == prev) {
+				
 				cnt++;
-				if (cnt>=2)
+				
+				if (cnt >= 2) {
 					return true;
-			}else
+				}
+				
+			} else {
 				cnt = 0;
+			}
+			
 			prev = str.charAt(i);
+		
 		}
+		
 		return false;
+	
 	}
 	
-	private String replaceRepetitions(String str){
+	private String replaceRepetitions(String str) {
+		
 		String toreturn=str.substring(0,1);
 		char prev = str.charAt(0);
 		boolean found = false;
-		for (int i=1; i<str.length(); i++){
+		
+		for (int i = 1; i < str.length(); i++) {
+			
 			char current = str.charAt(i);
-			toreturn = toreturn+current;
-			if (current==prev){
-				if (found==true)
+			toreturn = toreturn + current;
+			
+			if (current == prev) {
+				
+				if (found == true) {
 					toreturn = toreturn.substring(0,toreturn.length()-1);
-				else
+				} else {
 					found = true;
-			}else if (found==true)
+				}
+				
+			} else if (found == true) {
 				found = false;
+			}
+			
 			prev = str.charAt(i);
+		
 		}
+		
 		return toreturn;
+	
 	}
 	
-	/**Replaces emoticons with their value: "sad" vs "happy"*/
-	private String replaceEmoticons(String current){
-		if ( happyEmo.contains(current))
+	/**
+	 * Replaces emoticons with their value: "sad" vs "happy"
+	 */
+	private String replaceEmoticons(String current) {
+		
+		if (happyEmo.contains(current)) {
 			current = "feeling happy";
-		else if (sadEmo.contains(current))
+		} else if (sadEmo.contains(current)) {
 			current = "feeling sad";
+		}
+		
 		return current;
+	
 	}
 	
-	/**Replaces UserMentions, Hashtags, UrlLinks*/
-	private String replaceTwitterFeatures(String current){
-		if (current.contains("#"))
+	/**
+	 * Replaces UserMentions, Hashtags, UrlLinks
+	 */
+	private String replaceTwitterFeatures(String current) {
+		
+		if (current.contains("#")) {
 			current = current.replaceAll("#", " ");
-		if (current.contains("@"))
+		}
+		if (current.contains("@")) {
 			current = "usermentionsymbol";
-		if (current.contains("http:") || current.contains("https:"))
+		}
+		if (current.contains("http:") || current.contains("https:")) {
 			current = "urlinksymbol";
+		}
+		
 		return current;
+	
 	}
 	
-	/**Finds whether a negation occurs in a word and returns "not".*/
-	private String replaceNegation(String current){
+	/**
+	 * Finds whether a negation occurs in a word and returns "not"
+	 */
+	private String replaceNegation(String current) {
+		
 		String tmp1 = current.toLowerCase();
-		if (tmp1.endsWith("n\'t")){
+		
+		if (tmp1.endsWith("n\'t")) {
 			tmp1 = tmp1.substring(0, tmp1.lastIndexOf("n\'t"));
 			tmp1 = tmp1.concat(" not");
-			if (tmp1.contains("wo "))
+			
+			if (tmp1.contains("wo ")) {
 				tmp1 = "will not";
-			else if (tmp1.contains("ca "))
+			} else if (tmp1.contains("ca ")) {
 				tmp1 = "can not";
-			else if (tmp1.contains("ai "))
+			} else if (tmp1.contains("ai ")) {
 				tmp1 = "is not";
+			}
+			
 			return tmp1;
 		}
+		
 		String tmp = current.replaceAll("[^A-Za-z0-9]", "").toLowerCase();
-		if (tmp.equals("cannot") || tmp.equals("cant"))
+		
+		if (tmp.equals("cannot") || tmp.equals("cant")) {
 			return "can not";
-		if ( (tmp.equals("not")) || (tmp.equals("no")) || (tmp.equals("none")) || (tmp.equals("noone")) || tmp.equals("nobody") || tmp.equals("nothing") || tmp.equals("neither") || tmp.equals("nor") || tmp.equals("nowhere") || tmp.equals("never") || tmp.equals("nver") || tmp.equals("hardly") || tmp.equals("scarcely") || tmp.equals("barely") || tmp.equals("no1")){
+		}
+		
+		if ((tmp.equals("not")) || (tmp.equals("no")) || (tmp.equals("none")) || (tmp.equals("noone")) || tmp.equals("nobody") || tmp.equals("nothing") || tmp.equals("neither") || tmp.equals("nor") || tmp.equals("nowhere") || tmp.equals("never") || tmp.equals("nver") || tmp.equals("hardly") || tmp.equals("scarcely") || tmp.equals("barely") || tmp.equals("no1")) {
 			return "not";
 		}
+		
 		return current;
+	
 	}
 	
-	/**Replaces abbreviations*/
-	private String replaceAbbreviations(String current){
+	/**
+	 * Replaces abbreviations
+	 */
+	private String replaceAbbreviations(String current) {
+		
 		String tmp = current.replaceAll("[^A-Za-z0-9\']", "").toLowerCase();
-		if (abbreviations.get(tmp)!=null){
+		
+		if (abbreviations.get(tmp) != null) {
 			tmp = abbreviations.get(tmp);
 			return tmp;
 		}
+		
 		return current;
+	
 	}
 	
 	/** 
