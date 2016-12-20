@@ -11,6 +11,8 @@
 	<li>HTML, CSS, Javascript</li>
 </ul>
 
+<br />
+
 ## Frameworks and Libraries
 
 <ul>
@@ -20,6 +22,8 @@
 	<li>jQuery</li>
 	<li>twitter4j (Java library for the Twitter API)</li>
 </ul>
+
+<br />
 
 ## General Concept
 
@@ -220,7 +224,7 @@
 		</ul>
 	</li>
 	
-	<li><b>Visual Data (PieChart)</b>
+	<li><b>Data Visualization (PieChart)</b>
 		<ul>
 			<li>Gets the number of positive and negative sentiment</li>
 			<li>Initializes PieChart attributes</li>
@@ -289,7 +293,7 @@ Thanks to **Petter Törnberg (Copyright 2013)** for the demo code used to analyz
 
 <br />
 
-You can find the original code [here](sentiwordnet.isti.cnr.it)
+You can find the original code <a href="sentiwordnet.isti.cnr.it/code/SentiWordNetDemoCode.java">here</a>
 
 <br />
 
