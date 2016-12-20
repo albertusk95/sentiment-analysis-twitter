@@ -70,6 +70,10 @@ public class PolarityClassifier {
 		
 		String output = "";
 		
+		/**
+		 * get the instances of every data test representation (lexicon, text, feature, and complex)
+		 * and apply a filter to it
+		 */
 		try {
 			text[0] = getText(all[0]);
 			feature[0] = getFeature(all[1]);
@@ -101,26 +105,27 @@ public class PolarityClassifier {
 	 * Returns the decision made by the two classifiers
 	 */
 	private String apply() throws Exception {
+		
 		double[] hc = applyHC();		// applies the HC and returns the results
 		double lc = applyLC();			// same for LC
 		
 		double content_pos_vals = (hc[0]+hc[2]+hc[4])/73.97;
 		double content_neg_vals = (hc[1]+hc[3]+hc[5])/73.97;
 		double hc_val = (1+content_pos_vals-content_neg_vals)/2;
+		
 		String output="";
 		
-		if ((hc_val<0.5) && (lc>0.5)){
+		if ((hc_val < 0.5) && (lc > 0.5)) {
 			output = "negative";
-		} else if ((hc_val>0.5) && (lc<0.5)){
+		} else if ((hc_val > 0.5) && (lc < 0.5)) {
 			output = "positive";
 		} else {
 			output = "nan";
 		}
+		
 		return output;
+	
 	}
-	
-	
-	
 	
 	
 	/*
@@ -133,19 +138,25 @@ public class PolarityClassifier {
 		
 		double[] scores = new double[6];
 		
-		for (int i=0; i<mnb_classifiers.length; i++){
+		for (int i = 0; i < mnb_classifiers.length; i++) {
+			
 			Instances test = null;
-			if (i==0)
+			
+			if (i == 0) {
 				test = text[1];
-			else if (i==1)
+			} else if (i == 1) {
 				test = feature[1];
-			else
+			} else {
 				test = complex[1];
+			}
+			
 			test.setClassIndex(0);	
 			
-			double[] preds = mnb_classifiers[i].distributionForInstance(test.get(0));	// gets the probabilities for each class (positive/negative)
+			// gets the probabilities for each class (positive/negative)
+			double[] preds = mnb_classifiers[i].distributionForInstance(test.get(0));
 			
-			if (i==0) {
+			if (i == 0) {
+				
 				scores[0] = preds[0]*31.07;
 				scores[1] = preds[1]*31.07;
 				
@@ -155,7 +166,8 @@ public class PolarityClassifier {
 				
 				Tweet.setClassDistText(preds);
 				
-			} else if (i==1) {
+			} else if (i == 1) {
+				
 				scores[2] = preds[0]*11.95;
 				scores[3] = preds[1]*11.95;
 				
@@ -165,7 +177,8 @@ public class PolarityClassifier {
 				
 				Tweet.setClassDistFeature(preds);
 				
-			} else if (i==2) {
+			} else if (i == 2) {
+				
 				scores[4] = preds[0]*30.95;
 				scores[5] = preds[1]*30.95;
 				
@@ -177,11 +190,13 @@ public class PolarityClassifier {
 				
 			}
 		}
+		
 		return scores;
+	
 	}
 	
 	/*
-	 * Applies the LC classifier (LBRepresentation)
+	 * Applies the LC classifier (lexicon-based representation)
 	 */
 	private double applyLC() throws Exception {
 		
@@ -200,6 +215,7 @@ public class PolarityClassifier {
 				
 		// set the lexicon classifier result into list
 		System.out.println("lexiconRes: " + lexiconResult);
+		
 		for (double litem: lexiconDist) {
 			System.out.println("lexiconDist: " + litem);
 		}
@@ -207,180 +223,261 @@ public class PolarityClassifier {
 		Tweet.setClassDistLexicon(lexiconPredAndDist);
 				
 		return lexiconResult;
+	
 	}
+	
 	
 	/*
 	 * Alters the order of the text representation's attributes according to the train files
+	 * tba contains:
+	 * [0 and, 17]
+	 * [0 but, 18]
+	 * [0 chiefs, 19]
 	 */
-	private void reformatText(Instances text_test){	
+	private void reformatText(Instances text_test) {
+		
 		// remove the attributes from the test set that are not used in the train set
 		String[] options = new String[2];
 		options[0] = "-R";
 		String opt = "";
 		boolean found = false;
-		for (int j=0; j<text_test.numAttributes(); j++){
-			if (tba.get(text_test.attribute(j).name())==null){
-				int pos = j+1;
+		
+		/**
+		 * checks whether tba contains any attributes from data test
+		 * and initializes options that will be used as the removal parameters
+		 * Case example:
+		 * - opt will contain 1, 2, 3,
+		 * - options[1] will contain 1, 2, 3
+		 */
+		for (int j = 0; j < text_test.numAttributes(); j++) {
+			
+			if (tba.get(text_test.attribute(j).name()) == null) {
+				int pos = j + 1;
 				found = true;
-				opt = opt+pos+",";
-			} 
+				opt = opt + pos + ",";
+			}
+			
 		}
-		if (found==true)
-			options[1] = opt.substring(0,opt.length()-1);
-		else
+		
+		if (found == true) {
+			options[1] = opt.substring(0, opt.length()-1);
+		} else {
 			options[1] = "";
+		}
+		
+		// initializes remove's object and start to remove the attributes based on the given options
 		Remove remove = new Remove();
+		
 		try {
+			
 			remove.setOptions(options);
 			remove.setInputFormat(text_test);
+			
 			Instances newData = Filter.useFilter(text_test, remove);
 			
 			double[] values = new double[tba.size()];			
-			for (int at=0; at<newData.numAttributes(); at++){			
-				int pos  = tba.get(newData.attribute(at).name());		// get the index of this attribute in the train set
-				values[pos] = newData.get(0).value(at);					// ...and its value
+			
+			for (int at = 0; at < newData.numAttributes(); at++) {			
+				int pos = tba.get(newData.attribute(at).name());		// get the index of this attribute in the train set
+				values[pos] = newData.get(0).value(at);					// and its value
 			}
+			
 			training_text.add(0, new SparseInstance(1.0, values));
 			text[1] = new Instances(training_text,0,1);
 			training_text.remove(0);
+		
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 	}
 	
 	
-	
-	/**Alters the order of the feature representation's attributes according to the train files.*/
-	private void reformatFeature(Instances feature_test){
+	/**
+	 * Alters the order of the feature representation's attributes according to the train files
+	 */
+	private void reformatFeature(Instances feature_test) {
 		
 		// remove the attributes from the test set that are not used in the train set
 		String[] options = new String[2];
 		options[0] = "-R";
 		String opt = "";
 		boolean found = false;
-		for (int j=0; j<feature_test.numAttributes(); j++){
-			if (fba.get(feature_test.attribute(j).name())==null){
-				int pos = j+1;
+		
+		for (int j = 0; j < feature_test.numAttributes(); j++) {
+			
+			if (fba.get(feature_test.attribute(j).name()) == null) {
+				int pos = j + 1;
 				found = true;
-				opt = opt+pos+",";
-			} 
+				opt = opt + pos + ",";
+			}
+			
 		}
-		if (found==true)
-			options[1] = opt.substring(0,opt.length()-1);
-		else
+		
+		if (found == true) {
+			options[1] = opt.substring(0, opt.length()-1);
+		} else {
 			options[1] = "";
+		}
+		
 		Remove remove = new Remove();
+		
 		try {
 			remove.setOptions(options);
 			remove.setInputFormat(feature_test);
+			
 			Instances newData = Filter.useFilter(feature_test, remove);	
 			double[] values = new double[fba.size()];			
-			for (int at=0; at<newData.numAttributes(); at++){
+			
+			for (int at = 0; at < newData.numAttributes(); at++) {
 				int pos  = fba.get(newData.attribute(at).name());		// get the index of this attribute in the train set
-				values[pos] = newData.get(0).value(at);					// ...and its value
+				values[pos] = newData.get(0).value(at);					// and its value
 			}
+			
 			training_feature.add(0, new SparseInstance(1.0, values));
 			feature[1]= new Instances(training_feature,0,1);
 			training_feature.remove(0);
+		
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 	}
 	
 	
-	
-	/**Alters the order of the complex representation's attributes according to the train files.*/
-	private void reformatComplex(Instances complex_test){
+	/**
+	 * Alters the order of the complex representation's attributes according to the train files
+	 */
+	private void reformatComplex(Instances complex_test) { 
 		
 		// remove the attributes from the test set that are not used in the train set
 		String[] options = new String[2];
 		options[0] = "-R";
 		String opt = "";
 		boolean found = false;
-		for (int j=0; j<complex_test.numAttributes(); j++){
-			if (cba.get(complex_test.attribute(j).name())==null){
-				int pos = j+1;
+		
+		for (int j = 0; j < complex_test.numAttributes(); j++) {
+			
+			if (cba.get(complex_test.attribute(j).name()) == null) {
+				int pos = j + 1;
 				found = true;
-				opt = opt+pos+",";
-			} 
+				opt = opt + pos + ",";
+			}
+			
 		}
-		if (found==true)
-			options[1] = opt.substring(0,opt.length()-1);
-		else
+		
+		if (found == true) {
+			options[1] = opt.substring(0, opt.length()-1);
+		} else {
 			options[1] = "";
+		}
+		
 		Remove remove = new Remove();
+		
 		try {
+			
 			remove.setOptions(options);
 			remove.setInputFormat(complex_test);
+			
 			Instances newData = Filter.useFilter(complex_test, remove);		
 			double[] values = new double[cba.size()];			
-			for (int at=0; at<newData.numAttributes(); at++){			
+			
+			for (int at = 0; at < newData.numAttributes(); at++) {			
 				int pos  = cba.get(newData.attribute(at).name());		// get the index of this attribute in the train set
-				values[pos] = newData.get(0).value(at);					// ...and its value
+				values[pos] = newData.get(0).value(at);					// and its value
 			}
+			
 			training_complex.add(0, new SparseInstance(1.0, values));
 			complex[1]= new Instances(training_complex,0,1);
 			training_complex.remove(0);
+		
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 	}
 	
 	
-	
-
-	
-	/**Returns the Text-based Representations.*/
-	private Instances getText(Instances data){	
+	/**
+	 * Returns the instances of text-based representations
+	 * and apply filter to it in order the format of data test is same
+	 * with the format of data train
+	 */
+	private Instances getText(Instances data) {
+		
 		data.setClassIndex(0);
 		Instances newData=null;
+		
 		try {
 			stwv.setInputFormat(data);
 			newData = weka.filters.Filter.useFilter(data, stwv);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 		return newData;
+	
 	}
 	
-
-	/**Returns the Feature-based Representations.*/
-	private Instances getFeature(Instances data){
+	
+	/**
+	 * Returns the instances of feature-based representations
+	 * and apply filter to it in order the format of data test is same
+	 * with the format of data train
+	 */
+	private Instances getFeature(Instances data) {
 
 		data.setClassIndex(0);
+		
 		try {
 			stwv.setInputFormat(data);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 		NGramTokenizer tokenizer = new NGramTokenizer();
 		tokenizer.setNGramMinSize(1);
 		tokenizer.setNGramMaxSize(1);
+		
 		stwv.setTokenizer(tokenizer);	
+		
 		Instances newData = null;
+		
 		try {
 			newData = weka.filters.Filter.useFilter(data, stwv);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 		tokenizer.setNGramMinSize(2);
 		tokenizer.setNGramMaxSize(2);
+		
 		stwv.setTokenizer(tokenizer);
+		
 		return newData;
+	
 	}
 	
-	/**Returns the Complex (text+POS) Representations.*/
-	private Instances getComplex(Instances data){
+	
+	/**
+	 * Returns the instances of complex-based representations
+	 * and apply filter to it in order the format of data test is same
+	 * with the format of data train
+	 */
+	private Instances getComplex(Instances data) {
 
 		data.setClassIndex(0);
 		Instances newData = null;
+		
 		try {
 			stwv.setInputFormat(data);
 			newData = weka.filters.Filter.useFilter(data, stwv);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
+		
 		return newData;
+	
 	}
 	
 	/**

@@ -201,9 +201,13 @@ public class SentimentAnalyser {
 		
 		if (useSlidingWindow == true) {
 		//if (useSlidingWindow == false){
+			
 			if (out.contains("pos") || out.contains("neg")) {	
-				// if HC and LC agree ("positive"/"negative"), 
-				// then put this document in the training set			
+				
+				/** 
+				 * If HC and LC agree ("positive"/"negative"), 
+				 * then put this document in the training set			
+				 */
 				double[] instanceValues = new double[train.numAttributes()];
 		        instanceValues[0] = train.attribute(0).addStringValue(tweet);
 		        
@@ -214,12 +218,15 @@ public class SentimentAnalyser {
 		        	instanceValues[1] = 1;
 		        }
 		        
-		        if (train.numInstances()>1000){
+				// if the total number of instance is more than 1000, remove the first instance
+		        if (train.numInstances() > 1000) {
 		        	train.remove(0);
 		        }
 		        
 		        train.add(new DenseInstance(1.0, instanceValues));
+			
 			} else {		
+				
 				// in case of HC & LC disagreement, 
 				// add the document in the test set; it will be classified in the end of the process
 				if (train.numInstances() > 0) {
@@ -227,22 +234,30 @@ public class SentimentAnalyser {
 					tmp_predClass[1] = out;
 				}
 				else {
-					// unknown class for the train data is empty
+					// unknown class for the train data is empty and can not do the training process
 					out = "positive (random)";
 				}
+				
 			}
+			
 		} else {		
+			
 			// if useSlidingWindow is set to "false", then use the model
 			if (out.contains("pos") || out.contains("neg")) {
 				
-				// set the list of predicted class comes from three possibilities
+				// set the list of predicted class come from three possibilities
 				Tweet.setPredictedClass(tmp_predClass);
 				
 				return out;
+				
 			} else {
+				
+				// got "nan"
 				out = clarifyOnModel(tweet);
 				tmp_predClass[2] = out;
+			
 			}
+			
 		}
 		
 		// set the list of predicted class comes from three possibilities
@@ -253,103 +268,152 @@ public class SentimentAnalyser {
 	
 	/*
 	 * Decides upon a "disagreed" document by applying the learned model based on 
-	 * the last 1,000 "agreed" documents
+	 * the last 1000 "agreed" documents (stored in "train" instances)
 	 */
-	private String clarifyOnSlidingWindow(String tweet){
+	private String clarifyOnSlidingWindow(String tweet) {
+		
 		String out = "";
-        double[] instanceValues = new double[train.numAttributes()];
+        
+		// add an instance into the data train at the end of file
+		double[] instanceValues = new double[train.numAttributes()];
         instanceValues[0] = train.attribute(0).addStringValue(tweet);
+		
 		train.add(new SparseInstance(1.0, instanceValues));
+		
 		try {
+			
+			// set a filter for the data train and store the filtered data train in a new instances
 			stwv.setInputFormat(train);
+			
 			Instances newData = Filter.useFilter(train, stwv);
+			
+			// prepare the data train
 			Instances train_ins = new Instances(newData, 0, train.size()-1);
+			
+			// prepare the data test 
 			Instances test_ins = new Instances(newData, train.size()-1, 1);
+			
+			// build classifier from the data train (1000 training data)
 			Classifier mnb = (Classifier)new NaiveBayesMultinomial();
 			mnb.buildClassifier(train_ins);
+			
+			// predict the class based on the model created before
 			double[] preds = mnb.distributionForInstance(test_ins.get(0));
-			if (preds[0]>0.5)
+			
+			if (preds[0] > 0.5) {
 				out = "positive";
-			else
+			} else {
 				out = "negative";
+			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 		train.remove(train.numInstances()-1);
+		
 		return out;
+	
 	}
 	
-	/*
+	/**
 	 * Decides upon a "disagreed" (out = nan) document by applying the learned model based on 
 	 * the previously build model
 	 */
 	private String clarifyOnModel(String tweet){
+		
 		String out = "";
 		
 		// get the text-based representation of the document
         double[] instanceValues = new double[2];
         instanceValues[0] = test.attribute(0).addStringValue(tweet);
-        test.add(new SparseInstance(1.0, instanceValues));
+        
+		test.add(new SparseInstance(1.0, instanceValues));
         
         try {
-        	stwv.setInputFormat(test);
+        	
+			stwv.setInputFormat(test);
         	Instances newData = Filter.useFilter(test, stwv);
     		
         	// re-order attributes so that they are compatible with the training set's ones
         	Instances test_instance = reformatText(newData);
         	
-        	// find the polarity of the document based on the previously built model
+        	// find the polarity of the document based on the previously built model, namely
+			// Liebherr, goethe, or Cisco
         	test_instance.setClassIndex(0);
         	double[] preds = multiNB.distributionForInstance(test_instance.get(0));
-        	if (preds[0]>0.5)
+        	
+			if (preds[0] > 0.5) {
         		out = "positive";
-        	else
+			}
+        	else {
         		out = "negative";
+			}
+			
         } catch (Exception e){
         	e.printStackTrace();
         }
+		
         test.remove(0);
+		
 		return out;
+	
 	}
 	
-	/*
+	
+	/**
 	 * Re-order the attributes of the given Instances according to the training file
 	 */
-	private Instances reformatText(Instances text_test){	
+	private Instances reformatText(Instances text_test) {
+		
 		// remove the attributes from the test set that are not used in the train set
 		String[] options = new String[2];
 		options[0] = "-R";
 		String opt = "";
 		boolean found = false;
-		for (int j=0; j<text_test.numAttributes(); j++){
-			if (train_attributes.get(text_test.attribute(j).name())==null){
-				int pos = j+1;
+		
+		for (int j = 0; j < text_test.numAttributes(); j++) {
+			
+			if (train_attributes.get(text_test.attribute(j).name()) == null) {
+				int pos = j + 1;
 				found = true;
-				opt = opt+pos+",";
-			} 
+				opt = opt + pos + ",";
+			}
+			
 		}
-		if (found==true)
-			options[1] = opt.substring(0,opt.length()-1);
-		else
+		
+		if (found == true) {
+			options[1] = opt.substring(0, opt.length()-1);
+		} else {
 			options[1] = "";
+		}
+		
 		Remove remove = new Remove();
+		
 		try {
+		
 			remove.setOptions(options);
 			remove.setInputFormat(text_test);
+			
 			Instances newData = Filter.useFilter(text_test, remove);
 			
 			double[] values = new double[train_attributes.size()];			
-			for (int at=0; at<newData.numAttributes(); at++){			
+			
+			for (int at = 0; at < newData.numAttributes(); at++) {			
 				int pos  = train_attributes.get(newData.attribute(at).name());		// get the index of this attribute in the train set
-				values[pos] = newData.get(0).value(at);					// ...and its value
+				values[pos] = newData.get(0).value(at);								// and its value
 			}
+			
 			training_text.add(0, new SparseInstance(1.0, values));
 			Instances tw = new Instances(training_text,0,1);
 			training_text.remove(0);
+			
 			return tw;
+		
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 		return null;
 	}
 	
