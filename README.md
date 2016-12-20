@@ -191,6 +191,7 @@
 			</li>
 		</ul>
 	</li>
+	
 	<li><b>Semantic Analysis</b>
 		<ul>
 			<li>Runner
@@ -218,9 +219,9 @@
 			</li>
 		</ul>
 	</li>
+	
 	<li><b>Visual Data (PieChart)</b>
 		<ul>
-			<li>Starts the visualization</li>
 			<li>Gets the number of positive and negative sentiment</li>
 			<li>Initializes PieChart attributes</li>
 			<li>Draws the PieChart</li>
@@ -228,6 +229,7 @@
 	</li>
 </ul>
 
+<br />
 
 ## Project Display
 
@@ -275,6 +277,12 @@
 
 <br />
 
+**Data Visualization**
+
+![Data Visualization](readme/img/visual.png)
+
+<br />
+
 ## References
 
 Thanks to **Petter Törnberg (Copyright 2013)** for the demo code used to analyze the sentiment value of a word. I implemented the code on **SWN3.java** with several modifications.<br />
@@ -292,3 +300,7 @@ You can read the theories behind the production of this application from these r
 	<li><a href="http://partofspeech.org/">http://partofspeech.org/</a></li>
 	<li><a href="http://www.slideshare.net/Cataldo/aiia-14dart">http://www.slideshare.net/Cataldo/aiia-14dart</a></li>
 </ul>
+
+-----
+
+**Albertus Kelvin 2016**
