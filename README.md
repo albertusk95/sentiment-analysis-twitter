@@ -32,6 +32,8 @@
 
 ![Dashboard - shows the details of tweet](readme/img/dashboard0.png)
 
+<br />
+
 **Dashboard - shows the brief info of sentiment and semantic analysis**
 
 ![Dashboard - shows the brief info of sentiment and semantic analysis](readme/img/dashboard1.png)
@@ -41,6 +43,8 @@
 **Sentiment Analysis - shows the information about the text preprocessing, the class distribution, and the classification stage**
 
 ![Sentiment Analysis - preprocessed text, class distribution, and classification stage](readme/img/sentiment0.png)
+
+<br />
 
 **Sentiment Analysis - shows the information about the total score for every representation, the total and average score for every class, and the final score for polarity classification**
 
@@ -54,6 +58,8 @@
 
 ![Semantic Analysis - shows the information about the probability distribution for every sentiment class](readme/img/semantic0.png)
 
+<br />
+
 **Semantic Analysis - shows the information about the semantic class**
 
 ![Semantic Analysis - shows the information about the semantic class](readme/img/semantic1.png)
@@ -62,15 +68,17 @@
 
 ## References
 
-Thanks to **Petter Törnberg (Copyright 2013)** for the demo code used to analyze the SentiWordNet. I implemented the code on **SWN3.java** with several modifications.<br />
-You can see the original code [here](sentiwordnet.isti.cnr.it/code/SentiWordNetDemoCode.java)<br />
+Thanks to **Petter Törnberg (Copyright 2013)** for the demo code used to analyze the sentiment value of a word. I implemented the code on **SWN3.java** with several modifications.<br />
+You can find the original code [here](sentiwordnet.isti.cnr.it)
 
 <br />
 
 You can read the theories behind the production of this application from:<br />
 <ul>
-	<li> [https://www.researchgate.net/publication/269093520_Feature_based_sentiment_analysis](https://www.researchgate.net/publication/269093520_Feature_based_sentiment_analysis) </li>
+	<li> [https://www.researchgate.net/publication/269093520_Feature_based_sentiment_analysis][1]</li>
 	<li> [https://cs.nyu.edu/grishman/jet/guide/PennPOS.html](https://cs.nyu.edu/grishman/jet/guide/PennPOS.html) </li>
 	<li> [http://partofspeech.org/](http://partofspeech.org/) </li>
 	<li> [http://www.slideshare.net/Cataldo/aiia-14dart](http://www.slideshare.net/Cataldo/aiia-14dart) </li>
 </ul>
+
+[1]: https://www.researchgate.net/publication/269093520_Feature_based_sentiment_analysis
